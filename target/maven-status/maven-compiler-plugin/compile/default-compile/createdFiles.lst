@@ -1,8 +1,10 @@
+com\lfa\web\util\Mailer.class
 com\lfa\web\MVCConfigurer.class
 com\lfa\web\controller\DefaultController.class
 com\lfa\web\dao\impl\SupplierDAOHibernateImpl.class
 com\lfa\web\entity\Supplier.class
 com\lfa\web\dao\impl\SupplierJdbcDAOImpl$1.class
+com\lfa\web\util\SMTPAuthenticator.class
 com\lfa\web\AppInitializer.class
 com\lfa\web\dao\impl\SupplierJdbcDAOImpl.class
 com\lfa\web\dao\SupplierDAO.class

@@ -1,3 +1,7 @@
+<%@page import="java.io.FileReader"%>
+<%@page import="java.io.Reader"%>
+<%@page import="java.io.IOException"%>
+<%@page import="java.io.File"%>
 <%@include file="../shared/header.jsp"%>
 <div class="row">
     <div class="col-md-12">
@@ -24,7 +28,7 @@
                             <td data-title="sid">${supplier.id}</td>
                             <td data-title="sname">${supplier.name}</td>
                             <td data-title="scontact" style="text-align: center">${supplier.contact}</td>
-                            <td data-title="semail" style="text-align: center"><span class="mail-btn" data-supplier-email="${supplier.email}" data-id="${supplier.id}" data-toggle="tooltip" title="Click to send Email"><button class="btn btn-outline-secondary btn-xs">${supplier.email} <span class="glyphicon glyphicon-send"></span></button></span></td>
+                            <td data-title="semail" style="text-align: center"><span class="mail-btn" data-supplier-name="${supplier.name}" data-supplier-email="${supplier.email}" data-id="${supplier.id}" data-toggle="tooltip" title="Click to send Email"><button class="btn btn-outline-secondary btn-xs">${supplier.email} <span class="glyphicon glyphicon-send"></span></button></span></td>
 
                             <td data-title="sstatus" style="text-align: center">
                                 <c:choose>
@@ -41,7 +45,7 @@
                                     <button class="btn btn-xs" style="background-color: #7DB772;color:white" data-title="Edit" data-toggle="modal" data-target="#edit" >
                                         <span class="glyphicon glyphicon-pencil"></span>
                                     </button></span>
-                                <span class="delete-btn" data-delete-id="${supplier.id}" data-placement="top" data-toggle="tooltip" title="Delete">
+                                <span class="delete-btn" data-supplier-name="${supplier.name}" data-supplier-contact="${supplier.contact}" data-supplier-email="${supplier.email}" data-supplier-status="${supplier.status}" data-delete-id="${supplier.id}" data-placement="top" data-toggle="tooltip" title="Delete">
                                     <button class="btn btn-xs" style="background-color: #E77471;color:white" data-title="Delete" data-toggle="modal" data-target="#delete" >
                                         <span class="glyphicon glyphicon-trash"></span>
                                     </button>
@@ -75,7 +79,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-                <h4 class="modal-title custom_align" id="Heading">Edit Supplier Info</h4>
+                <h4 class="modal-title custom_align" id="Heading">Edit Supplier Information</h4>
             </div>
 
             <form id="supplier-info-edit" method = "POST" action = "${pageContext.request.contextPath}/editSupplier">
@@ -125,9 +129,12 @@
                 <h4 class="modal-title custom_align" id="Heading">Delete this entry</h4>
             </div>
             <div class="modal-body">
-
-                <div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign"></span> Are you sure you want to delete this supplier's records?</div>
-
+                <div class="alert alert-danger"><span class="glyphicon glyphicon-warning-sign"></span>&nbsp; Are you sure you want to delete records of the following supplier?<br><br>&nbsp;&nbsp;&nbsp;&nbsp;
+                    Name: <b><span id="deleteConfirmName" style="color:black"></span></b><br>&nbsp;&nbsp;&nbsp;&nbsp;
+                    Contact Number: <b><span id="deleteConfirmContact" style="color:black"></span></b><br>&nbsp;&nbsp;&nbsp;&nbsp;
+                    Email Address: <b><span id="deleteConfirmEmail" style="color:black"></span></b><br>&nbsp;&nbsp;&nbsp;&nbsp;
+                    Status: &nbsp;<span id="deleteConfirmStatus"></span><br>
+                </div>
             </div>
             <div class="modal-footer ">
                 <form method ="post" action="${pageContext.request.contextPath}/deleteSupplier">
@@ -147,10 +154,10 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
-                <h4 class="modal-title custom_align" id="Heading">Send Email to </h4>
+                <h4 class="modal-title custom_align" id="Heading">Send Email to <span id="supplierModalName" style="color:#E77471"></span></h4>
             </div>
 
-            <form id="mailForm" method="post">
+            <form id="mailForm" method="post" action="${pageContext.request.contextPath}/mail">
                 <div class="modal-body">
                     <div class="form-group">
                         <label>To</label>
@@ -161,19 +168,19 @@
                     </div>
                     <div class="form-group">
                         <label>Select a Template </label><label class="pull-right"><i style="color:gray">(Optional)</i></label>
-                        <select name="mailTemplates" class="form-control">
-                            <option value="">Place Orders</option>
-                            <option value="">Cancel Order</option>
-                            <option value="">Request Information</option>
+                        <select name="mailTemplates" id="mailTemplates" class="form-control">
+                            <option id="placeOrder" value="">Place Order</option>
+                            <option id="cancelOrder" value="">Cancel Order</option>
+                            <option id="reqInfo" value="">Request Information</option>
                             <option value="" disabled selected>-- Select a Mail Template --</option>
                         </select>
                     </div>
                     <div class="form-group">
                         <label>Subject</label>
-                        <input class="form-control " type="text" name="subject" placeholder="Subject of your email"/>
+                        <input id="subject" value="" class="form-control " type="text" name="subject" placeholder="Subject of your email"/>
                     </div>
                     <div class="form-group">
-                        <textarea rows="12" class="form-control" placeholder="Write here..."></textarea>
+                        <textarea rows="12" id="body" value ="" name="body" class="form-control" placeholder="Write here..."></textarea>
                     </div>
                     <div class="form-inline">
                         <input type="checkbox" name="sendToMe"/> <label>Send a Copy of this Email to Me</label>
@@ -181,8 +188,8 @@
                 </div>
 
                 <div class="modal-footer ">
-                    <input type="hidden" id="mail-supplier-id" name="supplierId" value="">
-                    <button id="update-btn" type="submit" class="btn btn-success btn-lg" style="width: 100%;">Send  <span class="glyphicon glyphicon-send"></span></button>
+                    <input type="hidden" id="mail-supplier-id" name="id" value="">
+                    <button id="send-mail-btn" type="submit" class="btn btn-success btn-lg" style="width: 100%;">Send  <span class="glyphicon glyphicon-send"></span></button>
                 </div>
 
             </form>
@@ -365,7 +372,7 @@
 
         $(".edit-btn").on('click', function () {
             var $this = $(this);
-            var $checkboxVal; 
+            var $checkboxVal;
             if ($this.attr('data-supplier-status') === "true") {
                 $checkboxVal = true;
             } else {
@@ -381,11 +388,20 @@
 
         $(".delete-btn").on('click', function () {
             var $this = $(this);
+            $("#deleteConfirmName").html($this.attr('data-supplier-name'));
+            $("#deleteConfirmContact").html($this.attr('data-supplier-contact'));
+            $("#deleteConfirmEmail").html($this.attr('data-supplier-email'));
+            if ($this.attr('data-supplier-status') === "true") {
+                $("#deleteConfirmStatus").html("<label class=\"label\" style=\"background-color: #7DB772;color:white\">Active</label>");
+            } else {
+                $("#deleteConfirmStatus").html("<label class=\"label\" style=\"background-color: #E77471;color:white\">Inactive</label>");
+            }
             $('input[id="deleteSupplierId"]').attr('value', $this.attr('data-delete-id'));
         });
-        
+
         $(".mail-btn").on('click', function () {
             var $this = $(this);
+            $("#supplierModalName").html($this.attr('data-supplier-name'));
             $("#mail-to").val($this.attr('data-supplier-email'));
             $("#mail-supplier-id").val($this.attr('data-id'));
             $("#mail").modal('show');
@@ -401,6 +417,24 @@
         });
         $(".deleteMail").on('click', function () {
             $("#deleteMail").modal('show');
+        });
+
+        $("#mailTemplates").change(function () {
+            var optionId = $("option:selected", this).attr('id');
+            switch (optionId) {
+                case "placeOrder":
+                    $("#subject").val("Order Placement");
+                    $("#body").val("Dear Supplier,\n\nWe would like to place an order of [product specifications]. Please have them supplied by [deadline]. \nThank you.\n\nYours sincerely,\nSahaj Amatya\nE-mail: sahajamatya1@gmail.com\nContact No.: +9779860979512\nSmart Grocery, Pulchowk\nLalitpur, Nepal");
+                    break;
+                case "cancelOrder":
+                    $("#subject").val("Order Cancellation");
+                    $("#body").val("Dear Supplier,\n\nWe would like to cancel our order of [product specifications] made on [date of order submission]. Please send us a reply to provide confirmation at earliest convenience.\nThank you.\n\nYours sincerely,\nSahaj Amatya\nE-mail: sahajamatya1@gmail.com\nContact No.: +9779860979512\nSmart Grocery, Pulchowk\nLalitpur, Nepal");
+                    break;
+                case "reqInfo":
+                    $("#subject").val("Request Regarding Information");
+                    $("#body").val("Dear Supplier,\n\nWe would like to request information regarding [product]. Please send us all the details of the aforementioned product at earliest convenience.\nThank you.\n\nYours sincerely,\nSahaj Amatya\nE-mail: sahajamatya1@gmail.com\nContact No.: +9779860979512\nSmart Grocery, Pulchowk\nLalitpur, Nepal");
+                    break;
+            }
         });
     });
 
