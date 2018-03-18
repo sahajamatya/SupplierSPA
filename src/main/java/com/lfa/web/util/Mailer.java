@@ -21,11 +21,10 @@ import javax.mail.internet.MimeMessage;
  */
 public class Mailer {
 
-    private String host = "smtp.gmail.com";
-    private String port = "465";
+    private String host = "smtp.vianet.com.np";
+    private String port = "25";
     private String to;
-    private String from = "sahajamatya1@gmail.com";
-    private String password = "s[}<3+DY";
+    private String from = "enquire@leapfrog.academy";
     private String subject;
     private String body;
     private boolean html;
@@ -39,14 +38,6 @@ public class Mailer {
 
     public void setHost(String host) {
         this.host = host;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getPort() {
@@ -97,28 +88,16 @@ public class Mailer {
         this.html = html;
     }
 
-    public void send() throws MessagingException {
+    public void sendMail() throws MessagingException {
         Properties props = System.getProperties();
         props.put("mail.smtp.host", host);
-        props.put("mail.smtp.user", from);
         props.put("mail.smtp.port", port);
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.socketFactory.port", port);
-        props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-        props.put("mail.smtp.socketFactory.fallback", "false");
-        SecurityManager security = System.getSecurityManager();
-        try {
-            Authenticator auth = new SMTPAuthenticator();
-            Session session = Session.getInstance(props, auth);
-            MimeMessage message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(from));
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-            message.setSubject(subject);
-            message.setText(body);
-            Transport.send(message);
-        } catch (Exception ex){
-            System.out.println(ex.getMessage());
-        }
+        Session session = Session.getDefaultInstance(props);
+        MimeMessage message = new MimeMessage(session);
+        message.setFrom(new InternetAddress(from));
+        message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
+        message.setSubject(subject);
+        message.setText(body);
+        Transport.send(message);
     }
 }

@@ -40,6 +40,8 @@ public class Supplier {
     private Date modifiedDate;
     @Column(name="status")
     private boolean status;
+//    @Column(name="total_products")
+//    private int totalProducts;
 
     public Supplier() {
     }
@@ -53,7 +55,7 @@ public class Supplier {
         this.modifiedDate = modifiedDate;
         this.status = status;
     }
-
+    
     public int getId() {
         return id;
     }
@@ -109,6 +111,4 @@ public class Supplier {
     public void setStatus(boolean status) {
         this.status = status;
     }
-    
-    
 }

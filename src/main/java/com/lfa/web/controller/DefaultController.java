@@ -8,6 +8,8 @@ package com.lfa.web.controller;
 import com.lfa.web.dao.SupplierDAO;
 import com.lfa.web.entity.Supplier;
 import com.lfa.web.util.Mailer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -58,12 +60,18 @@ public class DefaultController {
     public String mail(@RequestParam("to") String to,
             @RequestParam("subject") String subject,
             @RequestParam("body") String body,
-            @RequestParam("id") int id) throws MessagingException {
+            @RequestParam("id") int id) {
         Mailer mailer = new Mailer();
         mailer.setTo(to);
         mailer.setSubject(subject);
         mailer.setBody(body);
-        mailer.send();
+        try {
+            mailer.sendMail();
+            System.out.println("Message sent");
+        } catch (MessagingException ex) {
+            System.out.println(ex.getMessage());
+            System.out.println("message not sent");
+        }
         return "redirect:/";
     }
 }
